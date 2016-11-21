@@ -14,5 +14,6 @@ server {
   location / {
     proxy_pass http://@@DOMAIN@@_backend;
     include proxy_params;
+    include @@DOMAIN@@.*.conf;
   }
 }
