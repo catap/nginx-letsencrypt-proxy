@@ -29,12 +29,14 @@ do
   IFS='='
   sary=(${ary[$key]})
   if [ ! -d /etc/letsencrypt/live/${sary[0]} ]; then
-    letsencrypt certonly --rsa-key-size 4096 --standalone --email $LETSENCRYPT_EMAIL -d ${sary[0]} --text --agree-tos
+    nginx -c /etc/nginx/nginx-cert-gen.conf -g 'daemon off;'&
+    letsencrypt certonly --rsa-key-size 4096 -a webroot --webroot-path=/var/www/challenges --email $LETSENCRYPT_EMAIL -d ${sary[0]} --text --agree-tos
+    kill $(jobs -p)
   fi
 done
 
-if [ ! -e /etc/ssl/certs/dhparam.pem ]; then
-  openssl dhparam -out /etc/ssl/certs/dhparam.pem 4096
+if [ ! -e /etc/letsencrypt/dhparam.pem ]; then
+  openssl dhparam -out /etc/letsencrypt/dhparam.pem 4096
 fi
 
 for key in "${!ary[@]}"

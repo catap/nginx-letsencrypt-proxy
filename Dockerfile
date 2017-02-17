@@ -17,12 +17,15 @@ RUN apt-get update \
 RUN ln -sf /dev/stdout /var/log/nginx/access.log \
   && ln -sf /dev/stderr /var/log/nginx/error.log
 
-RUN line="30 2 * * 1 /opt/letsencrypt/letsencrypt renew >> /var/log/letsencrypt-renew.log" \
+RUN line="30 2 * * 1 (/usr/bin/letsencrypt renew && /usr/sbin/nginx -s reload) 2>&1 >> /var/log/letsencrypt-renew.log" \
     && (crontab -u root -l 2>/dev/null; echo "$line" ) | crontab -u root -
+
+RUN mkdir -p /var/www/challenges
 
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 
 COPY nginx.conf /etc/nginx/nginx.conf
+COPY nginx-cert-gen.conf /etc/nginx/nginx-cert-gen.conf
 COPY nginx.vhost.conf.in /etc/nginx/nginx.vhost.conf.in
 
 EXPOSE 80 443
