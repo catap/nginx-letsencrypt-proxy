@@ -43,7 +43,11 @@ for key in "${!ary[@]}"
 do
   IFS='='
   sary=(${ary[$key]})
-  cat /etc/nginx/nginx.vhost.conf.in | sed -e "s!@@DOMAIN@@!${sary[0]}!g" | sed -e "s!@@BACKEND@@!${sary[1]}!g" > /etc/nginx/sites-enabled/${sary[0]}
+  if [ -f /etc/nginx/nginx.${sary[0]}.conf.in ]; then
+    cat /etc/nginx/nginx.${sary[0]}.conf.in | sed -e "s!@@DOMAIN@@!${sary[0]}!g" | sed -e "s!@@BACKEND@@!${sary[1]}!g" > /etc/nginx/sites-enabled/${sary[0]}
+  else
+    cat /etc/nginx/nginx.vhost.conf.in | sed -e "s!@@DOMAIN@@!${sary[0]}!g" | sed -e "s!@@BACKEND@@!${sary[1]}!g" > /etc/nginx/sites-enabled/${sary[0]}
+  fi
 done
 
 /etc/init.d/cron start
